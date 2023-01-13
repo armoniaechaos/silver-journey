@@ -8,16 +8,26 @@ import chakraTheme from "@chakra-ui/theme";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./routes";
 
-const { Button, Modal } = chakraTheme.components;
+const { Button, Modal, Card, Link } = chakraTheme.components;
 
 const theme = extendBaseTheme({
   components: {
     Button,
     Modal,
+    Card,
+    Link,
   },
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

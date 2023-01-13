@@ -8,7 +8,11 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
+  CircularProgress,
+  Stack,
 } from "@chakra-ui/react";
+import { useGetUsers } from "../../queries/useGetUsers";
+import UserCard from "../UserCard/UserCard";
 
 interface IUsersModalProps {
   isOpen: boolean;
@@ -17,14 +21,27 @@ interface IUsersModalProps {
 
 export default function UsersModal(props: IUsersModalProps) {
   const { isOpen, onClose } = props;
+  const [size, setSize] = React.useState(20);
+
+  const { data, isLoading } = useGetUsers({ size, enabled: isOpen });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Modal Title</ModalHeader>
+        <ModalHeader>Users</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>Hahahahah</ModalBody>
+        <ModalBody>
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <Stack>
+              {data?.map((user) => (
+                <UserCard {...user} />
+              ))}
+            </Stack>
+          )}
+        </ModalBody>
 
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>
