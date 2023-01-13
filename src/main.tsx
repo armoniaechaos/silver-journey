@@ -8,7 +8,8 @@ import chakraTheme from "@chakra-ui/theme";
 import { RouterProvider } from "@tanstack/react-router";
 import { router } from "./routes";
 
-const { Button, Modal, Card, Link } = chakraTheme.components;
+const { Button, Modal, Card, Link, Tooltip, NumberInput } =
+  chakraTheme.components;
 
 const theme = extendBaseTheme({
   components: {
@@ -16,6 +17,8 @@ const theme = extendBaseTheme({
     Modal,
     Card,
     Link,
+    Tooltip,
+    NumberInput,
   },
 });
 

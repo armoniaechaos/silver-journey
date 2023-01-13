@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { Box, Button } from "@chakra-ui/react";
 import UsersModal from "./UsersModal/UsersModal";
+import { Link, useRouter } from "@tanstack/react-router";
 
-function App() {
-  const [isOpen, setIsOpen] = useState(false);
+interface IAppProps {
+  isUsersModalOpen?: boolean;
+}
 
-  function openModal() {
-    setIsOpen(true);
-  }
+function App(props: IAppProps) {
+  const router = useRouter();
 
   function onCloseModal() {
-    setIsOpen(false);
+    router.navigate({ params: {}, search: {}, to: "/" });
   }
 
   return (
     <Box w="100%">
-      <Button onClick={openModal}>Open modal</Button>
-      <UsersModal isOpen={isOpen} onClose={onCloseModal} />
+      <Link to="/users">
+        <Button>Open modal</Button>
+      </Link>
+      <UsersModal isOpen={!!props.isUsersModalOpen} onClose={onCloseModal} />
     </Box>
   );
 }

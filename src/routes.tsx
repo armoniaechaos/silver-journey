@@ -8,6 +8,12 @@ const indexRoute = rootRoute.createRoute({
   component: App,
 });
 
-const routeConfig = rootRoute.addChildren([indexRoute]);
+// This route is the same as the indexRoute, but with the UsersModal open
+const usersRoute = rootRoute.createRoute({
+  path: "/users",
+  component: () => <App isUsersModalOpen />,
+});
+
+const routeConfig = rootRoute.addChildren([indexRoute, usersRoute]);
 
 export const router = createReactRouter({ routeConfig });

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent, useEffect, useMemo } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -10,44 +10,117 @@ import {
   Button,
   CircularProgress,
   Stack,
+  Flex,
+  IconButton,
+  Tooltip,
+  NumberInput,
+  NumberInputField,
 } from "@chakra-ui/react";
+import { RepeatIcon } from "@chakra-ui/icons";
 import { useGetUsers } from "../../queries/useGetUsers";
 import UserCard from "../UserCard/UserCard";
+import ToggleBar from "./ToggleBar/ToggleBar";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface IUsersModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const DEFAULT_SIZE = 10;
+
 export default function UsersModal(props: IUsersModalProps) {
   const { isOpen, onClose } = props;
-  const [size, setSize] = React.useState(20);
+
+  // This is the size of the data we want to fetch
+  const [size, setSize] = React.useState(DEFAULT_SIZE);
+
+  const [sizeInput, setSizeInput] = React.useState(DEFAULT_SIZE);
+
+  const queryClient = useQueryClient();
+
+  const [selectedId, setSelectedId] = React.useState(0);
 
   const { data, isLoading } = useGetUsers({ size, enabled: isOpen });
+
+  const selectedProfile = useMemo(() => {
+    if (data && selectedId) {
+      return data?.find((user) => user.id === selectedId);
+    } else if (data) {
+      return data[0];
+    }
+  }, [data, selectedId]);
+
+  useEffect(() => {
+    if (data) {
+      setSelectedId(data[0].id);
+    }
+  }, [data]);
+
+  function changeUserProfile(id: number) {
+    setSelectedId(id);
+  }
+
+  function refreshData() {
+    queryClient.invalidateQueries(["users"]);
+  }
+
+  function changeSize(valueAsString: string, valueAsNumber: number) {
+    setSizeInput(valueAsNumber);
+  }
+
+  function submitSize() {
+    setSize(sizeInput);
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Users</ModalHeader>
+        <ModalHeader>
+          <ToggleBar
+            users={data || []}
+            selectedProfile={selectedProfile}
+            changeUserProfile={changeUserProfile}
+          />
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {isLoading ? (
+          {isLoading || !selectedProfile ? (
             <CircularProgress />
           ) : (
             <Stack>
-              {data?.map((user) => (
-                <UserCard {...user} />
-              ))}
+              <UserCard {...selectedProfile} />
             </Stack>
           )}
         </ModalBody>
 
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
-            Close
-          </Button>
-          <Button variant="ghost">Secondary Action</Button>
+        <ModalFooter w="100%">
+          <Flex w="100%">
+            <Tooltip label="Refresh data">
+              <IconButton
+                onClick={refreshData}
+                aria-label="refresh data"
+                icon={<RepeatIcon />}
+                sx={{
+                  marginRight: "auto",
+                }}
+              />
+            </Tooltip>
+
+            <NumberInput
+              variant="filled"
+              min={0}
+              maxWidth="100px"
+              value={sizeInput}
+              onChange={changeSize}
+            >
+              <NumberInputField />
+            </NumberInput>
+            <Button sx={{ marginLeft: 2 }} onClick={submitSize}>
+              Update size
+            </Button>
+          </Flex>
         </ModalFooter>
       </ModalContent>
     </Modal>
