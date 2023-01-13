@@ -15,6 +15,8 @@ import {
   Tooltip,
   NumberInput,
   NumberInputField,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { RepeatIcon } from "@chakra-ui/icons";
 import { useGetUsers } from "../../queries/useGetUsers";
@@ -41,7 +43,10 @@ export default function UsersModal(props: IUsersModalProps) {
 
   const [selectedId, setSelectedId] = React.useState(0);
 
-  const { data, isLoading } = useGetUsers({ size, enabled: isOpen });
+  const { data, isLoading, error, isError } = useGetUsers({
+    size,
+    enabled: isOpen,
+  });
 
   const selectedProfile = useMemo(() => {
     if (data && selectedId) {
@@ -86,13 +91,20 @@ export default function UsersModal(props: IUsersModalProps) {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {isLoading || !selectedProfile ? (
-            <CircularProgress />
-          ) : (
-            <Stack>
-              <UserCard {...selectedProfile} />
-            </Stack>
-          )}
+          <>
+            {isError ? (
+              <Alert status="error" variant="top-accent">
+                <AlertIcon />
+                {error.message}
+              </Alert>
+            ) : isLoading || !selectedProfile ? (
+              <CircularProgress />
+            ) : (
+              <Stack>
+                <UserCard {...selectedProfile} />
+              </Stack>
+            )}
+          </>
         </ModalBody>
 
         <ModalFooter w="100%">
@@ -112,7 +124,7 @@ export default function UsersModal(props: IUsersModalProps) {
               variant="filled"
               min={0}
               maxWidth="100px"
-              value={sizeInput}
+              value={sizeInput || ""}
               onChange={changeSize}
             >
               <NumberInputField />
